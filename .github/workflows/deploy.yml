@@ -49,6 +49,4 @@ jobs:
             export BASE=${{ secrets.DB_NAME }}
             export JWT_SECRET_KEY=${{ secrets.JWT_SECRET_KEY }}
             docker compose -f docker-compose.yml up -d
-            sleep 10
-            docker compose -f docker-compose.yml exec -T backend alembic upgrade head
           EOF
