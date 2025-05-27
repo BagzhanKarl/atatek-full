@@ -1,0 +1,44 @@
+services:
+  db:
+    image: postgres:latest
+    environment:
+      POSTGRES_USER: atatek_admin
+      POSTGRES_PASSWORD: atatek_admin
+      POSTGRES_DB: atatek_admin
+    ports:
+      - 5432:5432
+    networks:
+      - atatek_network
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+  
+  adminer:
+    image: adminer:latest
+    ports: 
+      - "8080:8080"
+    networks:
+      - atatek_network
+    environment:
+      - ADMINER_DEFAULT_SERVER=db
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    networks:
+      - atatek_network
+    depends_on:
+      - db
+    environment:
+      - POSTGRES_USER=atatek_admin
+      
+
+
+volumes:
+  postgres_data:
+
+networks:
+  atatek_network:
+    driver: bridge
