@@ -25,9 +25,7 @@ jobs:
           ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} <<EOF
             cd ${{ secrets.PROJECT_DIR }}
             git pull origin main
-            # Временная полная пересборка
-            docker compose -f docker-compose.yml down -v
-            docker compose -f docker-compose.yml build --no-cache
+            docker compose -f docker-compose.yml build
           EOF
 
   deploy:
@@ -46,15 +44,11 @@ jobs:
         run: |
           ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} <<EOF
             cd ${{ secrets.PROJECT_DIR }}
-            echo "HOST=db" > backend/.env
-            echo "PORT=5432" >> backend/.env
-            echo "USER=${{ secrets.DB_USER }}" >> backend/.env
-            echo "PASSWORD=${{ secrets.DB_PASSWORD }}" >> backend/.env
-            echo "BASE=${{ secrets.DB_NAME }}" >> backend/.env
-            echo "JWT_SECRET_KEY=${{ secrets.JWT_SECRET_KEY }}" >> backend/.env
+            export USER=${{ secrets.DB_USER }}
+            export PASSWORD=${{ secrets.DB_PASSWORD }}
+            export BASE=${{ secrets.DB_NAME }}
+            export JWT_SECRET_KEY=${{ secrets.JWT_SECRET_KEY }}
             docker compose -f docker-compose.yml up -d
-            # Ждем пока база данных будет готова
             sleep 10
-            # Запускаем миграции
             docker compose -f docker-compose.yml exec -T backend alembic upgrade head
           EOF

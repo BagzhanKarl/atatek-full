@@ -1,4 +1,8 @@
 from pydantic_settings import BaseSettings, SettingsConfigDict
+import logging
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 
 class Settings(BaseSettings):
@@ -9,6 +13,10 @@ class Settings(BaseSettings):
     BASE: str = 'jaai_base'
 
     JWT_SECRET_KEY: str = 'secret'
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        logger.info(f"Database settings: HOST={self.HOST}, PORT={self.PORT}, USER={self.USER}, BASE={self.BASE}")
 
     @property
     def get_base_link(self):
@@ -22,7 +30,12 @@ class Settings(BaseSettings):
     def get_jwt_secret_key(self):
         return self.JWT_SECRET_KEY
     
-    model_config = SettingsConfigDict(env_file='.env')
+    model_config = SettingsConfigDict(
+        env_file=None,
+        env_file_encoding='utf-8',
+        case_sensitive=True,
+        extra='ignore'
+    )
     
     
 settings = Settings()
