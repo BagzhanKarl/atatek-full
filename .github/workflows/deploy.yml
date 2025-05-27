@@ -25,6 +25,11 @@ jobs:
           ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} <<EOF
             cd ${{ secrets.PROJECT_DIR }}
             git pull origin master
+            export USER=${{ secrets.DB_USER }}
+            export PASSWORD=${{ secrets.DB_PASSWORD }}
+            export BASE=${{ secrets.DB_NAME }}
+            export JWT_SECRET_KEY=${{ secrets.JWT_SECRET_KEY }}
+            export PORT=5432
             docker compose -f docker-compose.yml build
           EOF
 
@@ -48,5 +53,6 @@ jobs:
             export PASSWORD=${{ secrets.DB_PASSWORD }}
             export BASE=${{ secrets.DB_NAME }}
             export JWT_SECRET_KEY=${{ secrets.JWT_SECRET_KEY }}
+            export PORT=5432
             docker compose -f docker-compose.yml up -d
           EOF
