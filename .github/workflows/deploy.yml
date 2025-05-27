@@ -6,10 +6,9 @@ on:
       - main
 
 jobs:
-  deploy:
-    name: Deploy to Ubuntu VPS
+  build:
+    name: Build Docker images
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -21,11 +20,35 @@ jobs:
           chmod 600 ~/.ssh/id_rsa
           ssh-keyscan -H ${{ secrets.SSH_HOST }} >> ~/.ssh/known_hosts
 
-      - name: Deploy over SSH
+      - name: Build and push images
         run: |
           ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} <<EOF
             cd ${{ secrets.PROJECT_DIR }}
             git pull origin main
-            docker compose -f docker-compose.yml pull
-            docker compose -f docker-compose.yml up -d --build
+            docker compose -f docker-compose.yml build
+          EOF
+
+  deploy:
+    name: Deploy to VPS
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Setup SSH key
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan -H ${{ secrets.SSH_HOST }} >> ~/.ssh/known_hosts
+
+      - name: Deploy application
+        run: |
+          ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} <<EOF
+            cd ${{ secrets.PROJECT_DIR }}
+            echo "HOST=db" > backend/.env
+            echo "PORT=5432" >> backend/.env
+            echo "USER=${{ secrets.DB_USER }}" >> backend/.env
+            echo "PASSWORD=${{ secrets.DB_PASSWORD }}" >> backend/.env
+            echo "BASE=${{ secrets.DB_NAME }}" >> backend/.env
+            echo "JWT_SECRET_KEY=${{ secrets.JWT_SECRET_KEY }}" >> backend/.env
+            docker compose -f docker-compose.yml up -d
           EOF

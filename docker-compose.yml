@@ -2,11 +2,11 @@ services:
   db:
     image: postgres:latest
     environment:
-      POSTGRES_USER: atatek_admin
-      POSTGRES_PASSWORD: atatek_admin
-      POSTGRES_DB: atatek_admin
+      POSTGRES_USER: ${USER}
+      POSTGRES_PASSWORD: ${PASSWORD}
+      POSTGRES_DB: ${BASE}
     ports:
-      - 5432:5432
+      - ${PORT}:5432
     networks:
       - atatek_network
     volumes:
@@ -31,10 +31,6 @@ services:
       - atatek_network
     depends_on:
       - db
-    environment:
-      - POSTGRES_USER=atatek_admin
-      
-
 
 volumes:
   postgres_data:

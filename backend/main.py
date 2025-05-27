@@ -17,6 +17,24 @@ app = FastAPI(
 #     allow_headers=["*"],
 # )
 
+# Обработка HTTP ошибок
+from fastapi.exceptions import HTTPException
+app.add_exception_handler(HTTPException, http_exception_handler)
+
+# Обработка ошибок валидации (например, pydantic)
+@app.exception_handler(RequestValidationError)
+async def validation_exception_handler(request, exc):
+    return JSONResponse(
+        status_code=422,
+        content={
+            "status": "error",
+            "version": "1.0.0",
+            "data": {"detail": exc.errors()}
+        }
+    )
+
+
+
 init_app(app)
 
 

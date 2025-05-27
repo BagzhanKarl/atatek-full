@@ -16,7 +16,7 @@ class Settings(BaseSettings):
     
     @property
     def get_base_link_for_alembic(self):
-        return f"postgresql+asyncpg://{self.USER}:{self.PASSWORD}@localhost:{self.PORT}/{self.BASE}?async_fallback=true"
+        return f"postgresql+asyncpg://{self.USER}:{self.PASSWORD}@{self.HOST}:{self.PORT}/{self.BASE}?async_fallback=true"
     
     @property
     def get_jwt_secret_key(self):
