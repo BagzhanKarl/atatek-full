@@ -32,7 +32,6 @@ services:
     depends_on:
       - db
     environment:
-      # Эти переменные будут доступны в контейнере и подхвачены Pydantic
       - HOST=db
       - PORT=5432
       - USER=${USER}
